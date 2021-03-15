@@ -1,0 +1,16 @@
+config:
+  renderer: asciidoc
+
+modules:
+  lab1:
+    name: Agile Integration for the Enterprise - Overview
+  lab2:
+    name: Import projects into CodeReady Studio
+  lab2a:
+    name: REST-Based Enrichment Service
+  lab2b:
+    name: SOAP Web Application
+  lab2c:
+    name: Integration Application
+  lab2d:
+    name: Legacy Application Wrapper

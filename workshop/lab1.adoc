@@ -1,0 +1,177 @@
+Welcome! In this lab, you will review a business use case for this Agile Enterprise technical workshop. Next, you will request an OpenShift Container Platform environment for which you will be able to deploy resources. Finally, you will configure your local workstation with the necessary lab materials to execute the remaining labs.
+
+.Lab Goals
+
+* Review and understand the business use case
+* Obtain a dedicated OpenShift Container Platform environment and login to the environment using the OpenShift web console and Command Line Interface (CLI)
+* Explore preprovisioned assets within OpenShift
+* Utilize developer tools on your local workstation
+* Explore and download workshop lab assets
+
+.Business Use Case
+
+_Coolstore Inc._ is an ambitious e-commerce company that market quality consumer products on their portal. The company has bold plans in transforming itself into an link:https://www.cio.com/article/3269444/the-characteristics-of-an-agile-enterprise.html[*Agile Enterprise*^]. At the link:https://www.redhat.com/en/services/consulting/open-innovation-labs[*Red Hat Open Innovation Labs*^] in Boston, _Coolstore Inc._ attended a link:https://www.redhat.com/en/services/consulting#GatedFormContainer[*discovery workshop*^] organized by link:https://www.redhat.com/en/services/consulting[*Red Hat Consulting*^], and documented their business priorities into a discovery paper.
+The business priorities are simply: to improve _Coolstore Inc._ end-customer satisfaction levels, which will lead to increased sales and revenue.
+
+_Coolstore Inc._'s key takeway from the discovery workshop was appreciating the compelling value proposition of the link:https://www.redhat.com/en/topics/integration[*Red Hat Enterprise Integration strategy*^] in helping enterprises become agile, which was clearly demonstrated by link:https://www.redhat.com/en/services/consulting[*Red Hat Consulting*^].
+As a result, the C-suite of _Coolstore Inc._ is firmly committed in adopting link:https://www.redhat.com/en/technologies[*Red Hat technologies*^] as the fundamental infrastructure for their Agile Enterprise.
+
+_Coolstore Inc_ insist on the highest availability and performance service level agreements (SLA) for their new Agile Integration infrastructure. That is why their technical staff has tested and chosen link:https://www.openshift.com/products/container-platform/[*Red OpenShift Container Platform*^] to host and workload manage their containerized applications. Thanks to its reliability, scalability and performance, the product met the stringent SLAs set by _Coolstore Inc_. After all, link:https://www.openshift.com/products/container-platform/[*Red OpenShift Container Platform*^] is powered by link:https://kubernetes.io/[*Kubernetes*^] technology.
+
+With the help of Red Hat, _Coolstore Inc._ has envisioned implementing  the following items to achieving true Enterprise Agility:
+
+* Design Apache Camel routes, deployed on link:https://www.redhat.com/en/technologies/jboss-middleware/fuse[*Red Hat Fuse*^] that consume JSON records from link:https://www.redhat.com/en/technologies/jboss-middleware/amq[*Red Hat AMQ*^]
+* Use the multicast EIP pattern to distribute the messages to the services
+* Design the CXF web service using JAX-WS annotations to consume from SOAP backend service
+* Consume data from the backend REST service
+* Aggregate the messages received using the aggregation EIP pattern
+* Save the aggregated message in an SQL database using the Spring SQL Camel component
+* Use the Red Hat Fuse Tooling in Red Hat CodeReady Studio to create a *wsdl2rest* mapping
+* Transform legacy SOAP-based services to more modern REST-based services using the *wsdl2rest* mapping
+* Create a REST API layer on top of the Customer SOAP service
+* Design an Apache Camel route that exposes REST API consuming JSON
+* Implement JSON-based customer account record processing, with link:https://access.redhat.com/documentation/en-us/red_hat_fuse/7.2/html/fuse_on_openshift_guide/[*Fuse on OpenShift*^] as the production environment
+* Data enrichment and aggregation using REST services, to create customer account records stored in a database
+
+
+[NOTE]
+As a trusted Enterprise Integration consultant contracted by _Coolstore Inc._, your responsibility is to implement all the steps and milestones of the Agile Enterprise roadmap and fulfill the business requirements of _Coolstore Inc._
+
+
+:numbered:
+
+:imagesdir: images
+
+
+== Login to OpenShift Container Platform
+
+Let's login to both the OpenShift web console and to the CLI using the information provided in the previous section.
+
+Credentials for OpenShift are as follows:
+
+* Username*: `{{ USER_ID }}`
+* Password*: `openshift`
+
+=== Login to the OpenShift Web Console
+
+. On the environment information page, you will see a link for the OpenShift Web Console. It will be in the format *{{ OPENSHIFT_CONSOLE }}*
++
+image::lab-01/openshift-web-console-login.png[width="70%"]
+
+. Click on the link provided and login using the provided credentials and when successful, the console will be displayed.
++
+image::lab-01/openshift-web-console.png[width="70%"]
+
+
+=== Login to the OpenShift Command Line Interface
+
+Many of the operations that will be performed during this workshop will make use of the OpenShift CLI (`oc`). The CLI requires a URL to the OpenShift API. The URL for our OpenShift cluster is `{{ OPENSHIFT_API }}`. This value will be referred to as `OPENSHIFT_API` in subsequent steps.
+
+Your computer should be installed with the OpenShift executable.
+
+Now, let's login to OpenShift
+
+. Login to OpenShift Container Platform as user `user1` with the password provided above.
++
+----
+$ oc login {{ OPENSHIFT_API }} -u {{ USER_ID }}
+----
+
+. Enter the password when prompted.
+
+A response similar to the following indicates successful authentication to the CLI:
+
+
+----
+Login successful.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+  * labs-{{ USER_ID }}
+    enterprise-services
+
+Using project "labs-{{ USER_ID }}".
+
+----
+
+=== OpenShift Project Layout
+
+The OpenShift environment has been preconfigured for this workshop. When you logged in to OpenShift, you were presented with a list of projects that are available to you. A _project_ in OpenShift is a workspace for which you and potentially others can collaborate. 
+
+The following table describes the OpenShift projects and their purpose:
+
+[cols="1,1", options="header"]
+.OpenShift Projects
+|===
+|Name
+|Description
+
+|`labs-{{ USER_ID }}`
+|Location in which microservices applications developed as part of this workshop will reside
+
+|`enterprise-services`
+|Contains shared resources, such as the REST backend service, Red Hat AMQ 7, and PostgreSQL
+
+|===
+
+=== Explore OpenShift Projects
+
+Let's take a moment and explore the contents of each project.
+
+
+. Explore the set enterprise resources that are deployed in the `enterprise-services` project. These include Red Hat AMQ 7 and a PostgreSQL relational database. The database has also already been preconfigured for use in the exercises with the proper schema and tabls.
++
+----
+$ oc get pods -n enterprise-services
+----
++
+. Finally, the `labs-{{ USER_ID }}` project will be used to deploy all of the microservices applications thoughout this workshot. Do not worry that no resources are found currently. This project is empty, but will start to be populated in later labs.
+
+== Explore Red Hat CodeReady Studio
+
+Red Hat CodeReady Studio is an integrated development environment (IDE) that combines both tooling and runtime components, including Eclipse plug-ins, best-of-breed open source tools, and the Red Hat(R) JBoss(R) Enterprise Application Platform (JBoss EAP). Red Hat CodeReady Studio is just one of multiple IDE options available for enterprise development needs. Additional support is available for Visual Studio Code and IDEA IntellJ.
+
+image::lab-01/codeready-generic-screenshot.png[width="90%"]
+
+You will use Red Hat CodeReady Studio throughout the course of this workshop.
+
+=== Examine Red Hat CodeReady Studio Integration Stack Plug-ins
+
+Red Hat CodeReady Studio includes a variety of plug-ins for Eclipse. You use the following Red Hat CodeReady Studio plug-ins to complete the labs in the Red Hat OPEN middleware courses:
+
+* *Integration Stack*: The Integration Stack suite of plug-ins is particularly important when using Red Hat(R) Fuse and Red Hat(R) AMQ. The Integration Stack is included with Red Hat CodeReady Studio.
+
+* *EGit*: Red Hat CodeReady Studio includes the Eclipse EGit plug-in, which provides Git project support. No additional installation is required. Git is an open source version control system, providing developers with fast, versatile access to their application code's entire revision history.
+
+* *M2E*: Red Hat CodeReady Studio includes the Eclipse M2E plug-in, which provides support for Apache Maven projects. No additional installation is required. The M2E plug-in enables you to edit a Maven project’s `pom.xml` and run a Maven build from the IDE.
+
+== Obtain Course Lab Assets
+
+This exercises that are part of this workshop are version controlled in link:https://git-scm.com/[Git^]. In this section, you will clone the lab assets on your workstation so that they are available locally for use the remainder of the exeercises.
+
+=== Examine Lab Assets Project
+
+Using the visual capabilities provided by the Git hosting service, launch a web browser and explore the contents of the exercises:
+
+link:https://gitlab.com/redhatsummitlabs/agile-integration-for-the-enterprise/-/tree/master/labs/lab02[https://gitlab.com/redhatsummitlabs/agile-integration-for-the-enterprise/-/tree/master/labs/lab02^]
+
+Documentation is located at the root of the repository and separated lab. Assets pertaining to each lab are located in a `labs` folder. Each lab will contain a series of assets in a folder designated by `labXX` where `XX` is the lab number.
+
+=== Clone Project Locally
+
+Launch a terminal shell and use Git to clone the repository locally to the workstation.
+
+. Perform the following commands:
++
+[source,text]
+-----
+$ cd $HOME
+$ git clone https://gitlab.com/redhatsummitlabs/agile-integration-for-the-enterprise.git
+$ cd agile-integration-for-the-enterprise
+-----
++
+[NOTE]
+`$HOME/agile-integration-for-the-enterprise` is the root folder containing lab assets and lab sheets. The absolute path to this folder is referred to as `$AI_EXERCISE_HOME` in the instructions.
+The subdirectory named `$AI_EXERCISE_HOME/labs` contains the lab assets used in the individual labs.
+
+*Congratulations, you have completed this lab.*
