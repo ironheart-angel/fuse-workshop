@@ -1,0 +1,21 @@
+id: "workshop"
+name: "Agile Integration for the Enterprise"
+
+vars:
+  OPENSHIFT_CONSOLE: "http://dummy"
+  OPENSHIFT_API: "http://dummy"
+  REST_CXFRS_URL: "http://dummy"
+  TERMINAL_URL: "http://dummy"
+  AMQ_BROKER_URL: "http://dummy"
+  AMQ_ADMIN_USER: "amqadminusername"
+  AMQ_ADMIN_PASSWORD: "amqadminpassword"
+  SUFFIX: "dummy"
+
+modules:
+  activate:
+  - lab1
+  - lab2
+  - lab2a
+  - lab2b
+  - lab2c
+  - lab2d

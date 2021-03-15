@@ -1,0 +1,140 @@
+:numbered:
+
+=== Introduction
+
+A REST microservice is used as a backend service for this solution. The REST service is provided in the maven project *rest-cxfrs-service* within CodeReady Studio.
+
+The REST service enriches the Account record.
+
+This lab walks you through some of the code so you know how it works. You will not have to modify the code or deploy it.
+
+. Expand the project *rest-cxfrs-service*
+
+. Expand the node: *src/main/java*
+
+. Expand the package: *com.redhat.labs.agileintegration.rest*
+
+. Open the file: `CustomerRest.java`
+
+. This file consists of the interface for `CustomerRest` REST service:
++
+----
+package com.redhat.labs.agileintegration.rest;
+
+import org.globex.Account;
+
+import javax.ws.rs.*;
+
+@Path("/customerservice")
+public interface CustomerRest {
+
+    @POST @Path("/enrich") @Consumes("application/json") @Produces("application/json")
+    Account enrich(Account customer);
+
+}
+----
+
+. Open the class: `CustomerRestImpl.java`
++
+----
+package com.redhat.labs.agileintegration.rest;
+
+import org.globex.Account;
+import org.globex.Company;
+
+import io.swagger.annotations.Api;
+
+@Api("/customerservice")
+public class CustomerRestImpl implements CustomerRest {
+
+    private static final String NA_REGION = "NORTH_AMERICA";
+    private static final String SA_REGION = "SOUTH_AMERICA";
+    private static final String WE_REGION = "WEST_AMERICA";
+    private static final String EAST_REGION = "EAST_AMERICA";
+
+    @Override public Account enrich(Account account) {
+        Company company = account.getCompany();
+        String region = company.getGeo();
+        switch (region) {
+        case "NA":
+            company.setGeo(NA_REGION); break;
+        case "SA":
+            company.setGeo(SA_REGION); break;
+        case "WA":
+            company.setGeo(WE_REGION); break;
+        case "EA":
+            company.setGeo(EAST_REGION); break;
+        }
+        account.setCompany(company);
+        return account;
+    }
+}
+----
+
+* The implementation class contains logic to enrich the `Account` POJO as follows:
+** Based on the `geo` field of the `company` object, a Java enumerator maps region codes to regions
+** `{"NA, SA, WA, EA"}` corresponds to `{"NORTH_AMERICA, SOUTH_AMERICA, WEST_AMERICA, EAST_AMERICA"}`
+** The enriched `Account` object is returned by the `enrich()` method
+
+. Open the class `SampleRestApplication.java`.
+
+. To expose the REST service within Spring, the CXF component's `rsServer` is annotated with `@Bean`.
++
+----
+package com.redhat.labs.agileintegration.rest;
+
+import java.util.Arrays;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class SampleRestApplication {
+
+    @Autowired
+    private Bus bus;
+
+    public static void main(String[] args) {
+        SpringApplication.run(SampleRestApplication.class, args);
+    }
+
+    @Bean
+    public Server rsServer() {
+        // setup CXF-RS
+        JAXRSServerFactoryBean endpoint = new JAXRSServerFactoryBean();
+        endpoint.setBus(bus);
+        endpoint.setProvider(new JacksonJsonProvider());
+        endpoint.setServiceBeans(Arrays.<Object>asList(new CustomerRestImpl()));
+        endpoint.setAddress("/");
+        endpoint.setFeatures(Arrays.asList(new Swagger2Feature()));
+        return endpoint.create();
+    }
+}
+----
+
+=== Test the REST service
+
+. In order to save time, the REST service has been deployed to the OpenShift cluster. It has been deployed to the *enterprise-services* project.
+
+. Test the rest-cxfrs-service.
+
+.. Send a request to the rest-cxfrs-service
++
+----
+curl -k {{ REST_CXFRS_URL }}/rest/customerservice/enrich -X POST  -d '{"company":{"name":"Rotobots","geo":"NA","active":true},"contact":{"firstName":"Bill","lastName":"Smith","streetAddr":"100 N Park Ave.","city":"Phoenix","state":"AZ","zip":"85017","phone":"602-555-1100"}}' -H 'content-type: application/json'
+----
+
+.. The response should be as follows:
++
+----
+{"clientId":0,"salesRepresentative":null,"company":{"name":"Rotobots","geo":"NORTH_AMERICA","active":true},"contact":{"firstName":"Bill","lastName":"Smith","streetAddr":"100 N Park Ave.","city":"Phoenix","state":"AZ","zip":"85017","phone":"602-555-1100"}}
+----
+
+*You have successfully tested the REST web service!*
